@@ -6,12 +6,17 @@ namespace Donut
 	{
 		static void Main(string[] args)
 		{
-			Console.SetWindowSize(80, 35);
+			if (OperatingSystem.IsWindows()) // prevent warning windows only
+			{
+				Console.SetWindowSize(80, 35);
+			}
 			RenderDonut();
 		}
 
 		private static void RenderDonut()
 		{
+			Console.CursorVisible = false; // disable cursor flickering around
+
 			double xRotation = 0, zRotation = 0; // rotates the torus over time
 			double[] zBuffer = new double[1760]; // check depth object, 0 draws nothing
 			char[] output = new char[1760]; // draws character depending on the depth
