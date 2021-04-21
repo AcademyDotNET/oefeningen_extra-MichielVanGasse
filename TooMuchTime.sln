@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donut", "Donut\Donut.csproj", "{7DE1AE22-5603-4DBD-87DE-1FC3FE76429B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donut", "Donut\Donut.csproj", "{7DE1AE22-5603-4DBD-87DE-1FC3FE76429B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tetris", "Tetris\Tetris.csproj", "{9B4E9DD9-5569-42C9-A328-77E81DA5CE81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7DE1AE22-5603-4DBD-87DE-1FC3FE76429B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DE1AE22-5603-4DBD-87DE-1FC3FE76429B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DE1AE22-5603-4DBD-87DE-1FC3FE76429B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B4E9DD9-5569-42C9-A328-77E81DA5CE81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B4E9DD9-5569-42C9-A328-77E81DA5CE81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B4E9DD9-5569-42C9-A328-77E81DA5CE81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B4E9DD9-5569-42C9-A328-77E81DA5CE81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
