@@ -21,8 +21,9 @@ namespace Tetris
 		static int yOffset = 5;
 		static int tick = 0;
 		static int dropSpeed = 20;
-		static int level = 1;
+		public static int level = 1;
 		static bool[,] playField = new bool[yLength, xWith];
+		static int totalLines = 0;
 
 		static Random rand = new Random();
 		static TetrisBlock activeBlock = new TetrisBlock(rand.Next(0, 7), (ConsoleColor)rand.Next(9, 15));
@@ -33,6 +34,7 @@ namespace Tetris
 			isPlaying = true;
 			Clear();
 			SetCursorPosition(0, 0);
+			ClearPlayField();
 
 			while (isPlaying)
 			{
@@ -52,7 +54,7 @@ namespace Tetris
 					ScoreCheck();
 
 					// game over
-					if (CollisionCheck(activeBlock.Shape))
+					if (CollisionCheck(activeBlock.Shape) && isPlaying)
 					{
 						HighScores.CheckHighScore(Hud.Score);
 						isPlaying = false;
@@ -70,6 +72,22 @@ namespace Tetris
 			WriteLine("m");
 			ResetColor();
 			Clear();
+		}
+
+		private static void ClearPlayField()
+		{
+
+			for (int i = 0; i < playField.GetLength(0); i++)
+			{
+				for (int j = 0; j < playField.GetLength(1); j++)
+				{
+					playField[i, j] = false;
+				}
+			}
+			Hud.Score = 0;
+			totalLines = 0;
+			xShapePosition = 10;
+			yShapePosition = 0;
 		}
 		private static void ScoreCheck()
 		{
@@ -97,6 +115,12 @@ namespace Tetris
 						}
 					}
 					lines++;
+					totalLines++;
+					if (totalLines == 10)
+					{
+						totalLines = 0;
+						level++;
+					}
 				}
 			}
 			int[] fullLineScore = { 0, 40, 100, 300, 1200 };
@@ -192,6 +216,26 @@ namespace Tetris
 					//Score += Level;
 					yShapePosition++;
 				}
+
+				if (key.Key == ConsoleKey.Spacebar)
+				{
+					int score = 1;
+					while (!CollisionCheck(activeBlock.Shape))
+					{
+						yShapePosition++;
+						Hud.Score++;
+					}
+
+					UpdateField();
+					ScoreCheck();
+
+					// game over
+					if (CollisionCheck(activeBlock.Shape))
+					{
+						HighScores.CheckHighScore(Hud.Score);
+						isPlaying = false;
+					}
+				}
 			}
 		}
 		public static bool CollisionCheck(bool[,] shape)
@@ -236,11 +280,11 @@ namespace Tetris
 
 			// print tetris logo
 			string[] lineSeperation = pauseAsc.Split("\n");
-
+			Clear();
 			for (int i = 0; i < lineSeperation.Length; i++)
 			{
 				// fansy animation + position middle of the screen
-				SetCursorPosition(40 - lineSeperation[i].Length / 2, 5 + i);
+				SetCursorPosition(43 - lineSeperation[i].Length / 2, 10 + i);
 				string[] letterSeperation = lineSeperation[i].Split("|");
 
 				// seperate words for color
@@ -278,7 +322,7 @@ namespace Tetris
 		}
 		public static void RotateShape()
 		{
-			
+
 			TetrisBlock collisionCheckBlock = new TetrisBlock(activeBlock.ShapeNumber, activeBlock.ShapeColor);
 			if (activeBlock.ShapePosition == 0)
 			{

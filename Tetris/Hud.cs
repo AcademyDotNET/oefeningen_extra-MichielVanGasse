@@ -50,7 +50,9 @@ namespace Tetris
             Console.SetCursorPosition(0,0);
 			Console.WriteLine(hud);
             Console.SetCursorPosition(10, 5);
-            Console.Write($"Your score: {Score}");
+            Console.WriteLine($"Your score: {Score}");
+            Console.SetCursorPosition(10, 6);
+            Console.WriteLine($"Your level: {PlayTetris.level}");
             Console.SetCursorPosition(53, 5);
             Console.Write("Next block:");
             PlayTetris.nextBlock.DrawBlock(55, 8);

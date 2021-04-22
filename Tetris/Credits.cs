@@ -11,13 +11,14 @@ namespace Tetris
 		private static int yOld = 0;
 		private static double x = 0;
 		private static double y = 0;
-		private static bool showCredits = true;
+		public static bool showCredits = true;
 		private static Random random = new Random();
 		public static void ShowCredits()
 		{
 			Console.Clear();
-			Console.ForegroundColor = (ConsoleColor)random.Next(9, 15);	
-			
+			Console.ForegroundColor = (ConsoleColor)random.Next(9, 15);
+			showCredits = true;
+
 			do
 			{
 				EraseName();
@@ -32,7 +33,7 @@ namespace Tetris
 			Console.ResetColor();
 			Console.Clear();
 		}
-		private static void BackToMenu()
+		public static void BackToMenu()
 		{
 			if (Console.KeyAvailable)
 			{

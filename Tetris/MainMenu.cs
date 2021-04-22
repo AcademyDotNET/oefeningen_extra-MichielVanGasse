@@ -28,6 +28,7 @@ namespace Tetris
 			int selection = 0;
 
 			HighScores.GetHighScores();
+			ResetColor();
 			Clear();
 			DrawMenuDecoration();
 
