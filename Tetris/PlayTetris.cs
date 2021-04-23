@@ -194,6 +194,10 @@ namespace Tetris
 					if ((xShapePosition < xWith - (activeBlock.Shape.GetLength(1) + 1)))
 					{
 						xShapePosition += 2;
+						if (CollisionCheck(activeBlock.Shape))
+						{
+							xShapePosition -= 2;
+						}
 					}
 				}
 
@@ -202,6 +206,10 @@ namespace Tetris
 					if (xShapePosition >= 1)
 					{
 						xShapePosition -= 2;
+						if (CollisionCheck(activeBlock.Shape))
+						{
+							xShapePosition += 2;
+						}
 					}
 				}
 
