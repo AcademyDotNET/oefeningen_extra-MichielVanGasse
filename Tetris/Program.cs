@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-//using System.Threading;
-using System.Text;
-using System.Media;
 using static Tetris.MainMenu;
 
 namespace Tetris
@@ -14,6 +8,7 @@ namespace Tetris
 	{
 		static void Main(string[] args)
 		{
+			bool play = true;
 			Console.Title = "Tetris Michiel Van Gasse";
 			if (OperatingSystem.IsWindows()) // prevent warning windows only
 			{
@@ -21,14 +16,14 @@ namespace Tetris
 			}
 			Console.CursorVisible = false; // disable cursor flickering around
 
-			while (true) // infinity game loop
+			while (play) 
 			{
 				SelectedMenu selectedMenu = MenuSelection();
 
 				switch (selectedMenu)
 				{
 					case SelectedMenu.StartGame:
-						PlayTetris.Start();
+						PlayTetris.PlayGame();
 						break;
 					case SelectedMenu.HighScore:
 						HighScores.ShowHighScores();
@@ -40,7 +35,7 @@ namespace Tetris
 						Credits.ShowCredits();
 						break;
 					case SelectedMenu.Exit:
-						Environment.Exit(0);
+						play = false;
 						break;
 					default:
 						break;

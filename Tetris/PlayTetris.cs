@@ -10,51 +10,47 @@ namespace Tetris
 {
 	class PlayTetris
 	{
-		static bool isPlaying = true;
-		static bool pauseMenu = false;
-		static string shapeSymbol = "█";
-		static int xWith = 20;
-		static int yLength = 21;
-		static int xShapePosition = 10;
-		static int yShapePosition = 0;
-		static int xOffset = 30;
-		static int yOffset = 5;
-		static int tick = 0;
-		static int dropSpeed = 20;
+		private static bool isPlaying = true;
+		private static bool pauseMenu = false;
+		private static int xOffset = 30;
+		private static int yOffset = 5;
+		private static int tick = 0;
+
+		public static PlayField playField;
 		public static int level = 1;
-		static bool[,] playField = new bool[yLength, xWith];
-		static int totalLines = 0;
 
-		static Random rand = new Random();
-		static TetrisBlock activeBlock = new TetrisBlock(rand.Next(0, 7), (ConsoleColor)rand.Next(9, 15));
-		public static TetrisBlock nextBlock = new TetrisBlock(rand.Next(0, 7), (ConsoleColor)rand.Next(9, 15));
-
-		static public void Start()
+		static public void PlayGame()
 		{
+			Hud.Score = 0;
+			level = 1;
+			int dropSpeed = 20;
 			isPlaying = true;
-			Clear();
+
+			TetrisBlock activeBlock = new TetrisBlock();
+			playField = new PlayField();
+			
+			Engine.ClearScreen();
 			SetCursorPosition(0, 0);
-			ClearPlayField();
 
 			while (isPlaying)
 			{
 				tick++;
 
-				KeyInputCheck();
+				KeyInputCheck(activeBlock, playField);
 
 				if (tick % (dropSpeed - level) == 0)
 				{
-					yShapePosition++;
+					activeBlock.YPos++;
 					tick = 0;
 				}
 
-				if (CollisionCheck(activeBlock.Shape))
+				if (playField.CollisionCheck(activeBlock))
 				{
-					UpdateField();
-					ScoreCheck();
+					playField.UpdateField(activeBlock);
+					playField.ScoreCheck();
 
 					// game over
-					if (CollisionCheck(activeBlock.Shape) && isPlaying)
+					if (playField.CollisionCheck(activeBlock) && isPlaying)
 					{
 						HighScores.CheckHighScore(Hud.Score);
 						isPlaying = false;
@@ -62,218 +58,19 @@ namespace Tetris
 				}
 
 				Hud.DrawHud();
-				DrawPlayField();
-				DrawActiveBlock();
+				playField.DrawPlayField(xOffset, yOffset);
+				activeBlock.DrawBlock(xOffset + activeBlock.XPos, yOffset + activeBlock.YPos);
 
 				Thread.Sleep(40);
 			}
 
 			// remove keyboard input glitch
-			WriteLine("m");
-			ResetColor();
-			Clear();
+			Engine.GlitchFix();
 		}
-
-		private static void ClearPlayField()
+		private static void KeyInputCheck(TetrisBlock activeBlock, PlayField playField)
 		{
-
-			for (int i = 0; i < playField.GetLength(0); i++)
-			{
-				for (int j = 0; j < playField.GetLength(1); j++)
-				{
-					playField[i, j] = false;
-				}
-			}
-			Hud.Score = 0;
-			totalLines = 0;
-			xShapePosition = 10;
-			yShapePosition = 0;
-		}
-		private static void ScoreCheck()
-		{
-			int lines = 0;
-
-			for (int i = 0; i < playField.GetLength(0); i++)
-			{
-				bool fullLine = true;
-				for (int j = 0; j < playField.GetLength(1); j++)
-				{
-					if (!playField[i, j])
-					{
-						fullLine = false;
-						break;
-					}
-				}
-
-				if (fullLine)
-				{
-					for (int k = i; k >= 1; k--)
-					{
-						for (int j = 0; j < playField.GetLength(1); j++)
-						{
-							playField[k, j] = playField[k - 1, j];
-						}
-					}
-					lines++;
-					totalLines++;
-					if (totalLines == 10)
-					{
-						totalLines = 0;
-						level++;
-					}
-				}
-			}
-			int[] fullLineScore = { 0, 40, 100, 300, 1200 };
-			Hud.Score += fullLineScore[lines];
-		}
-		static void DrawPlayField()
-		{
-			ForegroundColor = ConsoleColor.Red;
-			for (int i = 0; i < playField.GetLength(0); i++)
-			{
-				string xRow = "";
-				for (int j = 0; j < playField.GetLength(1); j++)
-				{
-					if (playField[i, j])
-					{
-						xRow += $"{shapeSymbol}";
-					}
-					else
-					{
-						xRow += ".";
-					}
-				}
-				SetCursorPosition(xOffset, i + yOffset);
-				Write(xRow);
-			}
-			ResetColor();
-		}
-		static void DrawActiveBlock()
-		{
-			ForegroundColor = activeBlock.ShapeColor;
-			for (int i = 0; i < activeBlock.Shape.GetLength(0); i++)
-			{
-				for (int j = 0; j < activeBlock.Shape.GetLength(1); j++)
-				{
-					if (activeBlock.Shape[i, j])
-					{
-
-						SetCursorPosition(j + xOffset + xShapePosition, i + yOffset + yShapePosition);
-						Write(shapeSymbol);
-					}
-				}
-			}
-			ResetColor();
-		}
-		private static void KeyInputCheck()
-		{
-			if (KeyAvailable)
-			{
-				ConsoleKeyInfo key = ReadKey();
-
-				if (key.Key == ConsoleKey.Escape)
-				{
-					isPlaying = false;
-				}
-
-				if (key.Key == ConsoleKey.Enter && pauseMenu == false)
-				{
-					Pause();
-					pauseMenu = true;
-					ReadKey();
-				}
-
-				if (key.Key == ConsoleKey.Enter && pauseMenu == true)
-				{
-					Clear();
-					pauseMenu = false;
-				}
-
-				if (key.Key == ConsoleKey.RightArrow)
-				{
-					if ((xShapePosition < xWith - (activeBlock.Shape.GetLength(1) + 1)))
-					{
-						xShapePosition += 2;
-						if (CollisionCheck(activeBlock.Shape))
-						{
-							xShapePosition -= 2;
-						}
-					}
-				}
-
-				if (key.Key == ConsoleKey.LeftArrow)
-				{
-					if (xShapePosition >= 1)
-					{
-						xShapePosition -= 2;
-						if (CollisionCheck(activeBlock.Shape))
-						{
-							xShapePosition += 2;
-						}
-					}
-				}
-
-				if (key.Key == ConsoleKey.UpArrow)
-				{
-					RotateShape();
-				}
-
-				if (key.Key == ConsoleKey.DownArrow)
-				{
-					tick = 1;
-					//Score += Level;
-					yShapePosition++;
-				}
-
-				if (key.Key == ConsoleKey.Spacebar)
-				{
-					int score = 1;
-					while (!CollisionCheck(activeBlock.Shape))
-					{
-						yShapePosition++;
-						Hud.Score++;
-					}
-
-					UpdateField();
-					ScoreCheck();
-
-					// game over
-					if (CollisionCheck(activeBlock.Shape))
-					{
-						HighScores.CheckHighScore(Hud.Score);
-						isPlaying = false;
-					}
-				}
-			}
-		}
-		public static bool CollisionCheck(bool[,] shape)
-		{
-			// sides collision
-			if (xShapePosition > xWith - shape.GetLength(1))
-			{
-				return true;
-			}
-			// bottom collision
-			if (yShapePosition + shape.GetLength(0) == yLength)
-			{
-				return true;
-			}
-			// playfield collision
-			for (int i = 0; i < shape.GetLength(0); i++)
-			{
-				for (int j = 0; j < shape.GetLength(1); j++)
-				{
-					if (shape[i, j] && playField[yShapePosition + i + 1, xShapePosition + j])
-					{
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		private static void Pause()
-		{
-			string pauseAsc = @"      ___     |      ___     |      ___     |      ___     |      ___     
+			string pauseText = @"
+      ___     |      ___     |      ___     |      ___     |      ___     
      /\--\    |     /\--\    |     /\__\    |     /\--\    |     /\--\    
     /##\--\   |    /##\--\   |    /#/--/    |    /##\--\   |    /##\--\   
    /#/\#\--\  |   /#/\#\--\  |   /#/--/     |   /#/\#\--\  |   /#/\#\--\  
@@ -285,80 +82,85 @@ namespace Tetris
               |     /#/--/   |    \##/--/   |    \##/--/   |    \#\__\    
               |     \/__/    |     \/__/    |     \/__/    |     \/__/    
 ";
-
-			// print tetris logo
-			string[] lineSeperation = pauseAsc.Split("\n");
-			Clear();
-			for (int i = 0; i < lineSeperation.Length; i++)
+			if (KeyAvailable)
 			{
-				// fansy animation + position middle of the screen
-				SetCursorPosition(43 - lineSeperation[i].Length / 2, 10 + i);
-				string[] letterSeperation = lineSeperation[i].Split("|");
+				ConsoleKeyInfo key = ReadKey();
 
-				// seperate words for color
-				for (int j = 0; j < letterSeperation.Length; j++)
+				if (key.Key == ConsoleKey.Escape)
 				{
-					ForegroundColor = MainMenu.SwitchColors(j);
-					Write(letterSeperation[j]);
+					isPlaying = false;
 				}
-				WriteLine();
-			}
 
-		}
-		private static void UpdateField()
-		{
-			for (int i = 0; i < activeBlock.Shape.GetLength(0); i++)
-			{
-				for (int j = 0; j < activeBlock.Shape.GetLength(1); j++)
+				if (key.Key == ConsoleKey.Enter && pauseMenu == false)
 				{
-					if (activeBlock.Shape[i, j])
+					Engine.ClearScreen();
+					Engine.DrawTitle(pauseText, 10);
+					pauseMenu = true;
+					ReadKey();
+				}
+
+				if (key.Key == ConsoleKey.Enter && pauseMenu == true)
+				{
+					Engine.ClearScreen();
+					pauseMenu = false;
+				}
+
+				if (key.Key == ConsoleKey.RightArrow)
+				{
+					if ((activeBlock.XPos < playField.XWith - (activeBlock.Shape.GetLength(1) + 1)))
 					{
-						playField[yShapePosition + i, xShapePosition + j] = true;
+						activeBlock.XPos += 2;
+						if (playField.CollisionCheck(activeBlock))
+						{
+							activeBlock.XPos -= 2;
+						}
+					}
+				}
+
+				if (key.Key == ConsoleKey.LeftArrow)
+				{
+					if (activeBlock.XPos >= 1)
+					{
+						activeBlock.XPos -= 2;
+						if (playField.CollisionCheck(activeBlock))
+						{
+							activeBlock.XPos += 2;
+						}
+					}
+				}
+
+				if (key.Key == ConsoleKey.UpArrow)
+				{
+					activeBlock.RotateShape();
+				}
+
+				if (key.Key == ConsoleKey.DownArrow)
+				{
+					tick = 1;
+					activeBlock.YPos++;
+				}
+
+				if (key.Key == ConsoleKey.Spacebar)
+				{
+					while (!playField.CollisionCheck(activeBlock))
+					{
+						activeBlock.YPos++;
+						Hud.Score++;
+					}
+
+					playField.UpdateField(activeBlock);
+					playField.ScoreCheck();
+
+					// game over
+					if (playField.CollisionCheck(activeBlock))
+					{
+						HighScores.CheckHighScore(Hud.Score);
+						isPlaying = false;
 					}
 				}
 			}
-			activeBlock.Shape = nextBlock.Shape;
-			activeBlock.ShapeColor = nextBlock.ShapeColor;
-			activeBlock.ShapePosition = nextBlock.ShapePosition;
-			activeBlock.ShapeNumber = nextBlock.ShapeNumber;
-			// reset 
-			nextBlock.ShapeNumber = rand.Next(0, 7);
-			nextBlock.ShapeColor = (ConsoleColor)rand.Next(9, 15);
-			nextBlock.Shape = TetrisBlock.SelectBlock(nextBlock.ShapeNumber);
-			xShapePosition = 10;
-			yShapePosition = 0;
 		}
-		public static void RotateShape()
-		{
-
-			TetrisBlock collisionCheckBlock = new TetrisBlock(activeBlock.ShapeNumber, activeBlock.ShapeColor);
-			if (activeBlock.ShapePosition == 0)
-			{
-				collisionCheckBlock.Shape = TetrisBlock.VerticalBlock(activeBlock.ShapeNumber);
-				collisionCheckBlock.ShapePosition = 1;
-			}
-			else if (activeBlock.ShapePosition == 1)
-			{
-				collisionCheckBlock.Shape = TetrisBlock.InvertedSelectBlock(activeBlock.ShapeNumber);
-				collisionCheckBlock.ShapePosition = 2;
-			}
-			else if (activeBlock.ShapePosition == 2)
-			{
-				collisionCheckBlock.Shape = TetrisBlock.InvertedVerticalBlock(activeBlock.ShapeNumber);
-				collisionCheckBlock.ShapePosition = 3;
-			}
-			else if (activeBlock.ShapePosition == 3)
-			{
-				collisionCheckBlock.Shape = TetrisBlock.SelectBlock(activeBlock.ShapeNumber);
-				collisionCheckBlock.ShapePosition = 0;
-			}
-
-			if (!PlayTetris.CollisionCheck(collisionCheckBlock.Shape))
-			{
-				activeBlock.Shape = collisionCheckBlock.Shape;
-				activeBlock.ShapePosition = collisionCheckBlock.ShapePosition;
-			}
-
-		}
+		
+		
 	}
 }

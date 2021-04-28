@@ -8,54 +8,21 @@ namespace Tetris
 {
 	static class Hud
 	{
-		public static int Score { get; set; }
+        public static TetrisBlock nextBlock = new TetrisBlock();
+        public static int Score { get; set; }
 		public static void DrawHud()
 		{
-			string hud = @"                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                ";
 			Console.BackgroundColor = ConsoleColor.DarkBlue;
             Console.ForegroundColor = ConsoleColor.Red;
             Console.SetCursorPosition(0,0);
-			Console.WriteLine(hud);
+            Engine.ClearScreen();
             Console.SetCursorPosition(10, 5);
             Console.WriteLine($"Your score: {Score}");
             Console.SetCursorPosition(10, 6);
             Console.WriteLine($"Your level: {PlayTetris.level}");
             Console.SetCursorPosition(53, 5);
             Console.Write("Next block:");
-            PlayTetris.nextBlock.DrawBlock(55, 8);
+            nextBlock.DrawBlock(55, 8);
 
 			Console.ResetColor();
 		}

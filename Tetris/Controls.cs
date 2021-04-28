@@ -66,9 +66,7 @@ II$OOOOOOOOOOO$========+===+OOOOOOOOOOOOZ===============$$$$$$$8888O8Z+~~~~~~~~~
 			{
 			} while (Console.ReadKey().Key != ConsoleKey.Escape);
 
-			// to prevent draw bug keypress
-			Console.WriteLine("M");
-			Console.Clear();
+			Engine.GlitchFix();
 		}
 	}
 }

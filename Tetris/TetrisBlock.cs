@@ -8,19 +8,23 @@ namespace Tetris
 {
 	class TetrisBlock
 	{
-		public TetrisBlock(int _shapeNumber, ConsoleColor _shapeColor)
+		static Random rand = new Random();
+		private int ShapePosition { get; set; }
+		public int ShapeNumber { get; private set; }
+		public bool[,] Shape { get; private set; }
+		public ConsoleColor ShapeColor { get; private set; }
+		public int XPos { get; set; } = 8;
+		public int YPos { get; set; } = 0;
+		public TetrisBlock()
+		{
+			ResetBlock();
+		}
+		public TetrisBlock(int shapeNumber, ConsoleColor shapeColor)
 		{
 			// contains the block shape and color 
-			ShapeNumber = _shapeNumber;
-			Shape = SelectBlock(ShapeNumber);
-			ShapeColor = _shapeColor;
-			ShapePosition = 0;
+			SetBlock(shapeNumber, shapeColor);
 		}
-		public int ShapePosition { get; set; }
-		public int ShapeNumber { get; set; }
-		public bool[,] Shape { get; set; }
-		public ConsoleColor ShapeColor { get; set; }
-		public static bool[,] SelectBlock(int block)
+		private bool[,] SelectBlock(int block)
 		{
 			switch (block)
 			{
@@ -48,7 +52,7 @@ namespace Tetris
 					return new bool[,] { { true, true, true, true, true, true, true, true } };
 			}
 		}
-		public static bool[,] VerticalBlock(int block2)
+		private bool[,] VerticalBlock(int block2)
 		{
 			switch (block2)
 			{
@@ -84,7 +88,7 @@ namespace Tetris
 					return new bool[,] { { true, true }, { true, true }, { true, true }, { true, true } };
 			}
 		}
-		public static bool[,] InvertedSelectBlock(int block3)
+		private bool[,] InvertedSelectBlock(int block3)
 		{
 			switch (block3)
 			{
@@ -112,7 +116,7 @@ namespace Tetris
 					return new bool[,] { { true, true, true, true, true, true, true, true } };
 			}
 		}
-		public static bool[,] InvertedVerticalBlock(int block4)
+		private bool[,] InvertedVerticalBlock(int block4)
 		{
 			switch (block4)
 			{
@@ -148,14 +152,16 @@ namespace Tetris
 					return new bool[,] { { true, true }, { true, true }, { true, true }, { true, true } };
 			}
 		}
-		public void NewShape()
+		public void ResetBlock()
 		{
-			Random rand = new Random();
-			Shape = SelectBlock(rand.Next(0, 7));
+			ShapeNumber = rand.Next(0, 7);
+			Shape = SelectBlock(ShapeNumber);
 			ShapeColor = (ConsoleColor)rand.Next(9, 15);
+			ShapePosition = 0;
 		}
-		public void DrawBlock(int xOffset,int yOffset)
+		public void DrawBlock(int xPos, int yPos)
 		{
+			Console.ForegroundColor = ShapeColor;
 			for (int i = 0; i < Shape.GetLength(0); i++)
 			{
 				for (int j = 0; j < Shape.GetLength(1); j++)
@@ -163,11 +169,51 @@ namespace Tetris
 					if (Shape[i, j])
 					{
 
-						Console.SetCursorPosition(j + xOffset, i + yOffset);
+						Console.SetCursorPosition(j + xPos, i + yPos);
 						Console.Write("█");
 					}
 				}
 			}
+			Console.ResetColor();
+		}
+		public void RotateShape()
+		{
+			TetrisBlock collisionCheckBlock = new TetrisBlock(ShapeNumber, ShapeColor);
+			if (ShapePosition == 0)
+			{
+				collisionCheckBlock.Shape = VerticalBlock(ShapeNumber);
+				collisionCheckBlock.ShapePosition = 1;
+			}
+			else if (ShapePosition == 1)
+			{
+				collisionCheckBlock.Shape = InvertedSelectBlock(ShapeNumber);
+				collisionCheckBlock.ShapePosition = 2;
+			}
+			else if (ShapePosition == 2)
+			{
+				collisionCheckBlock.Shape = InvertedVerticalBlock(ShapeNumber);
+				collisionCheckBlock.ShapePosition = 3;
+			}
+			else if (ShapePosition == 3)
+			{
+				collisionCheckBlock.Shape = SelectBlock(ShapeNumber);
+				collisionCheckBlock.ShapePosition = 0;
+			}
+			if(PlayTetris.playField != null)
+			{ 
+				if (!PlayTetris.playField.CollisionCheck(collisionCheckBlock))
+				{
+					Shape = collisionCheckBlock.Shape;
+					ShapePosition = collisionCheckBlock.ShapePosition;
+				}
+			}
+		}
+		public void SetBlock(int shapeNumber, ConsoleColor shapeColor)
+		{
+			ShapeNumber = shapeNumber;
+			Shape = SelectBlock(ShapeNumber);
+			ShapeColor = shapeColor;
+			ShapePosition = 0;
 		}
 	}
 }
